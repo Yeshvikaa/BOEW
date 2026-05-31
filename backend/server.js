@@ -8,12 +8,25 @@ dotenv.config()
 
 const app = express()
 
+// ✅ CORS FIX (IMPORTANT FOR RENDER FRONTEND)
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "https://boew-1.onrender.com"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}
+
+app.use(cors(corsOptions))
+app.options("*", cors(corsOptions))
+
 // Middleware
-app.use(cors())
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// ✅ Root route (FIX for "Cannot GET /")
+// Root route
 app.get("/", (req, res) => {
   res.send("BOEW API is running 🚀")
 })
@@ -39,8 +52,6 @@ connectDB()
 app.use('/api/auth', require('./routes/auth'))
 app.use('/api/images', require('./routes/images'))
 app.use('/api/users', require('./routes/users'))
-
-// ❌ Removed broken dist serving (THIS WAS CAUSING YOUR ISSUE)
 
 // Global Error Handler
 app.use((err, req, res, next) => {
